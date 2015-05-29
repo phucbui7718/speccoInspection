@@ -95,14 +95,14 @@ public class LoginGUI {
 				if (inspector != null){
 					
 						JOptionPane.showMessageDialog(null, "Login sucessfully!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
-						reportInfoGUI rFrame = new reportInfoGUI();
+						reportInfoGUI rFrame = new reportInfoGUI(inspector);
 						rFrame.reportFrame.setVisible(true);
 						frame.dispose();
 					
 				}
 				
 				else {
-					JOptionPane.showMessageDialog(null,"Incorrect pass/username. Please check again!" , "Login Error!", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,"Incorrect password/username. Please check again!" , "Login Error!", JOptionPane.ERROR_MESSAGE);
 				}
 				
 			
