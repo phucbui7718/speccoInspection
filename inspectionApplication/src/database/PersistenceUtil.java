@@ -27,7 +27,7 @@ public class PersistenceUtil {
     private static EntityManager buildEntityManager() {
         try {
             EntityManagerFactory emf = Persistence
-                    .createEntityManagerFactory("Software Project");
+                    .createEntityManagerFactory("inspectionApplication");
             return emf.createEntityManager();
         } catch (Throwable e) {
             System.err.println("Iniitial EntityManager Creation. " + e);
