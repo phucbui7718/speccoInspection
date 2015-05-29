@@ -13,7 +13,8 @@ public class testingApp {
 	
         inspector.setInspFirstname("Adaa");
         inspector.setInspLastname("Johnson");
-        
+        inspector.setInspUsername("justinoferrer");
+        inspector.setInspPassword("specco");
 // Adding a new report or an inspector
 		EntityManager em = PersistenceUtil.getEntityManager();
 		em.getTransaction().begin();

@@ -23,7 +23,13 @@ public class Inspector implements Serializable {
 
 	@Column(name="insp_lastname")
 	private String inspLastname;
-
+	
+	@Column(name="insp_username")
+	private String inspUsername;
+	
+	@Column(name="insp_password")
+	private String inspPassword;
+	
 	//bi-directional many-to-one association to Report
 	@OneToMany(mappedBy="inspector")
 	private List<Report> reports;
@@ -75,6 +81,22 @@ public class Inspector implements Serializable {
 		report.setInspector(null);
 
 		return report;
+	}
+
+	public String getInspUsername() {
+		return inspUsername;
+	}
+
+	public void setInspUsername(String inspUsername) {
+		this.inspUsername = inspUsername;
+	}
+
+	public String getInspPassword() {
+		return inspPassword;
+	}
+
+	public void setInspPassword(String inspPassword) {
+		this.inspPassword = inspPassword;
 	}
 
 }

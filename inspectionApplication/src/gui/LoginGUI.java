@@ -12,6 +12,9 @@ import java.awt.Font;
 
 import javax.swing.JButton;
 
+import model.Inspector;
+import database.Database;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -86,14 +89,23 @@ public class LoginGUI {
 			public void actionPerformed(ActionEvent arg0) {
 				char[] passChar = passwordField.getPassword();
 				String passStr = new String(passChar);
-			if (usernameText.getText().equals("justinoferrer") && passStr.equals("specco")){
-				JOptionPane.showMessageDialog(null, "Login sucessfully!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
-				frame.dispose();
-				InspectionGUI inspFrame = new InspectionGUI();
-				inspFrame.inspectionJFrame.setVisible(true);
-			} else {
-				JOptionPane.showMessageDialog(null,"Incorrect pass/username. Please check again!" , "Login Error!", JOptionPane.ERROR_MESSAGE);
-			}
+				
+				Inspector inspector = Database.getInspector(usernameText.getText(), passStr);
+				
+				if (inspector != null){
+					
+						JOptionPane.showMessageDialog(null, "Login sucessfully!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
+						reportInfoGUI rFrame = new reportInfoGUI();
+						rFrame.reportFrame.setVisible(true);
+						frame.dispose();
+					
+				}
+				
+				else {
+					JOptionPane.showMessageDialog(null,"Incorrect pass/username. Please check again!" , "Login Error!", JOptionPane.ERROR_MESSAGE);
+				}
+				
+			
 			}
 		});
 		btnNewButton.setBounds(70, 144, 89, 23);
