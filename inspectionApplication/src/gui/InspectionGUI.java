@@ -1,43 +1,30 @@
 package gui;
 
-import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 
-public class InspectionGUI {
+import javax.swing.JTabbedPane;
 
-	private JFrame frame;
+public class InspectionGUI{
+	JFrame inspectionJFrame;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					InspectionGUI window = new InspectionGUI();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+
 
 	/**
-	 * Create the application.
+	 * Create the frame.
 	 */
 	public InspectionGUI() {
-		initialize();
+		inspectionJFrame = new JFrame();
+		inspectionJFrame.setTitle("Inspection Form");
+		inspectionJFrame.setResizable(false);
+		inspectionJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		inspectionJFrame.setBounds(100, 100, 600, 600);
+		inspectionJFrame.getContentPane().setLayout(null);
+		
+		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		tabbedPane.setBounds(10, 11, 584, 16);
+		inspectionJFrame.getContentPane().add(tabbedPane);
+	
+	    
 	}
-
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	}
-
 }
