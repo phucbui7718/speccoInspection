@@ -6,7 +6,7 @@ import java.util.List;
 
 
 /**
- * The persistent class for the inspector database table.
+ * The persistent class for the INSPECTOR database table.
  * 
  */
 @Entity
@@ -15,6 +15,8 @@ public class Inspector implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@SequenceGenerator(name="INSPECTOR_INSPID_GENERATOR" )
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="INSPECTOR_INSPID_GENERATOR")
 	@Column(name="insp_id")
 	private int inspId;
 
@@ -23,13 +25,13 @@ public class Inspector implements Serializable {
 
 	@Column(name="insp_lastname")
 	private String inspLastname;
-	
-	@Column(name="insp_username")
-	private String inspUsername;
-	
+
 	@Column(name="insp_password")
 	private String inspPassword;
-	
+
+	@Column(name="insp_username")
+	private String inspUsername;
+
 	//bi-directional many-to-one association to Report
 	@OneToMany(mappedBy="inspector")
 	private List<Report> reports;
@@ -61,6 +63,22 @@ public class Inspector implements Serializable {
 		this.inspLastname = inspLastname;
 	}
 
+	public String getInspPassword() {
+		return this.inspPassword;
+	}
+
+	public void setInspPassword(String inspPassword) {
+		this.inspPassword = inspPassword;
+	}
+
+	public String getInspUsername() {
+		return this.inspUsername;
+	}
+
+	public void setInspUsername(String inspUsername) {
+		this.inspUsername = inspUsername;
+	}
+
 	public List<Report> getReports() {
 		return this.reports;
 	}
@@ -81,22 +99,6 @@ public class Inspector implements Serializable {
 		report.setInspector(null);
 
 		return report;
-	}
-
-	public String getInspUsername() {
-		return inspUsername;
-	}
-
-	public void setInspUsername(String inspUsername) {
-		this.inspUsername = inspUsername;
-	}
-
-	public String getInspPassword() {
-		return inspPassword;
-	}
-
-	public void setInspPassword(String inspPassword) {
-		this.inspPassword = inspPassword;
 	}
 
 }

@@ -17,10 +17,10 @@ import java.awt.event.ActionEvent;
 
 public class reportInfoGUI{
 	JFrame reportFrame;
-	private JTextField siteText;
-	private JTextField dateText;
-	private JTextField weatherText;
-	private JTextField inspectorText;
+	public static JTextField siteText;
+	public static JTextField dateText;
+	public static JTextField weatherText;
+	public static JTextField inspectorText;
 
 	/**
 	 * Create the frame.
@@ -97,11 +97,13 @@ public class reportInfoGUI{
 		JButton createBtn = new JButton("Proceed");
 		createBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-			InspectionGUI inspFrame = new InspectionGUI();
+			InspectionGUI inspFrame = new InspectionGUI(inspector);
 			inspFrame.inspectionJFrame.setVisible(true);
 			reportFrame.dispose();
+			
 			}
 		});
+		
 		createBtn.setBounds(10, 187, 89, 23);
 		reportFrame.getContentPane().add(createBtn);
 		

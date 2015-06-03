@@ -2,10 +2,11 @@ package model;
 
 import java.io.Serializable;
 import javax.persistence.*;
+import java.util.List;
 
 
 /**
- * The persistent class for the report database table.
+ * The persistent class for the REPORT database table.
  * 
  */
 @Entity
@@ -14,6 +15,8 @@ public class Report implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
+	@SequenceGenerator(name="REPORT_REPORTID_GENERATOR" )
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="REPORT_REPORTID_GENERATOR")
 	@Column(name="report_id")
 	private int reportId;
 
@@ -27,6 +30,10 @@ public class Report implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="insp_id")
 	private Inspector inspector;
+
+	//bi-directional many-to-one association to SwpppReport
+	@OneToMany(mappedBy="report")
+	private List<SwpppReport> swpppReports;
 
 	public Report() {
 	}
@@ -61,6 +68,28 @@ public class Report implements Serializable {
 
 	public void setInspector(Inspector inspector) {
 		this.inspector = inspector;
+	}
+
+	public List<SwpppReport> getSwpppReports() {
+		return this.swpppReports;
+	}
+
+	public void setSwpppReports(List<SwpppReport> swpppReports) {
+		this.swpppReports = swpppReports;
+	}
+
+	public SwpppReport addSwpppReport(SwpppReport swpppReport) {
+		getSwpppReports().add(swpppReport);
+		swpppReport.setReport(this);
+
+		return swpppReport;
+	}
+
+	public SwpppReport removeSwpppReport(SwpppReport swpppReport) {
+		getSwpppReports().remove(swpppReport);
+		swpppReport.setReport(null);
+
+		return swpppReport;
 	}
 
 }

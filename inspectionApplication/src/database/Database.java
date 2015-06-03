@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import model.Inspector;
+import model.Report;
+import model.SwpppReport;
 
 public class Database {
   public static Inspector getInspector(String username, String password){
@@ -20,4 +22,20 @@ public class Database {
 	  
 	return null; 
   }
+  
+  public static void submitReport(Report report){
+	  
+	  EntityManager em = PersistenceUtil.getEntityManager();
+	  em.getTransaction().begin();
+	  em.persist(report);
+	  em.getTransaction().commit();
+  }
+  
+  public static void submitSwpppReport(SwpppReport swpppReport){
+	  EntityManager em = PersistenceUtil.getEntityManager();
+	  em.getTransaction().begin();
+	  em.persist(swpppReport);
+	  em.getTransaction().commit();
+  }
+  
 }
