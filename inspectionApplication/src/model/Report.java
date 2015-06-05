@@ -31,9 +31,13 @@ public class Report implements Serializable {
 	@JoinColumn(name="insp_id")
 	private Inspector inspector;
 
-	//bi-directional many-to-one association to SwpppReport
+	//bi-directional many-to-one association to Swpppreport
 	@OneToMany(mappedBy="report")
-	private List<SwpppReport> swpppReports;
+	private List<Swpppreport> swpppreports;
+
+	//bi-directional many-to-one association to BmpReport
+	@OneToMany(mappedBy="report")
+	private List<BmpReport> bmpReports;
 
 	public Report() {
 	}
@@ -70,26 +74,48 @@ public class Report implements Serializable {
 		this.inspector = inspector;
 	}
 
-	public List<SwpppReport> getSwpppReports() {
-		return this.swpppReports;
+	public List<Swpppreport> getSwpppreports() {
+		return this.swpppreports;
 	}
 
-	public void setSwpppReports(List<SwpppReport> swpppReports) {
-		this.swpppReports = swpppReports;
+	public void setSwpppreports(List<Swpppreport> swpppreports) {
+		this.swpppreports = swpppreports;
 	}
 
-	public SwpppReport addSwpppReport(SwpppReport swpppReport) {
-		getSwpppReports().add(swpppReport);
-		swpppReport.setReport(this);
+	public Swpppreport addSwpppreport(Swpppreport swpppreport) {
+		getSwpppreports().add(swpppreport);
+		swpppreport.setReport(this);
 
-		return swpppReport;
+		return swpppreport;
 	}
 
-	public SwpppReport removeSwpppReport(SwpppReport swpppReport) {
-		getSwpppReports().remove(swpppReport);
-		swpppReport.setReport(null);
+	public Swpppreport removeSwpppreport(Swpppreport swpppreport) {
+		getSwpppreports().remove(swpppreport);
+		swpppreport.setReport(null);
 
-		return swpppReport;
+		return swpppreport;
+	}
+
+	public List<BmpReport> getBmpReports() {
+		return this.bmpReports;
+	}
+
+	public void setBmpReports(List<BmpReport> bmpReports) {
+		this.bmpReports = bmpReports;
+	}
+
+	public BmpReport addBmpReport(BmpReport bmpReport) {
+		getBmpReports().add(bmpReport);
+		bmpReport.setReport(this);
+
+		return bmpReport;
+	}
+
+	public BmpReport removeBmpReport(BmpReport bmpReport) {
+		getBmpReports().remove(bmpReport);
+		bmpReport.setReport(null);
+
+		return bmpReport;
 	}
 
 }

@@ -3,6 +3,7 @@ package gui;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 import java.awt.Font;
 
@@ -97,15 +98,21 @@ public class reportInfoGUI{
 		JButton createBtn = new JButton("Proceed");
 		createBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+			if(siteText.getText().trim().isEmpty() || dateText.getText().trim().isEmpty()|| weatherText.getText().trim().isEmpty()){
+				JOptionPane.showMessageDialog(null, "Please don't leave blank fields!" , "Input Error", JOptionPane.ERROR_MESSAGE);
+			}
+			else{
 			InspectionGUI inspFrame = new InspectionGUI(inspector);
 			inspFrame.inspectionJFrame.setVisible(true);
 			reportFrame.dispose();
-			
+			}
 			}
 		});
 		
 		createBtn.setBounds(10, 187, 89, 23);
 		reportFrame.getContentPane().add(createBtn);
-		
 	}
+	
+	
+	
 }

@@ -5,9 +5,10 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
+import model.BmpReport;
 import model.Inspector;
 import model.Report;
-import model.SwpppReport;
+import model.Swpppreport;
 
 public class Database {
   public static Inspector getInspector(String username, String password){
@@ -31,11 +32,19 @@ public class Database {
 	  em.getTransaction().commit();
   }
   
-  public static void submitSwpppReport(SwpppReport swpppReport){
+  public static void submitSwpppReport(Swpppreport swpppReport){
 	  EntityManager em = PersistenceUtil.getEntityManager();
 	  em.getTransaction().begin();
 	  em.persist(swpppReport);
 	  em.getTransaction().commit();
   }
+  
+  public static void submitBmpReport(BmpReport bmpReport){
+	  EntityManager em = PersistenceUtil.getEntityManager();
+	  em.getTransaction().begin();
+	  em.persist(bmpReport);
+	  em.getTransaction().commit();
+  }
+  
   
 }
