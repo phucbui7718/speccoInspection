@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import model.BmpReport;
+import model.DetailedCommentReport;
 import model.Inspector;
 import model.Report;
 import model.Swpppreport;
@@ -46,5 +47,10 @@ public class Database {
 	  em.getTransaction().commit();
   }
   
-  
+  public static void submitDetailedComment(DetailedCommentReport dcReport){
+	  EntityManager em = PersistenceUtil.getEntityManager();
+	  em.getTransaction().begin();
+	  em.persist(dcReport);
+	  em.getTransaction().commit();
+  }
 }

@@ -35,9 +35,13 @@ public class Report implements Serializable {
 	@OneToMany(mappedBy="report")
 	private List<Swpppreport> swpppreports;
 
-	//bi-directional many-to-one association to BmpReport
+	//bi-directional many-to-one association to Bmpreport
 	@OneToMany(mappedBy="report")
-	private List<BmpReport> bmpReports;
+	private List<BmpReport> bmpreports;
+
+	//bi-directional many-to-one association to DetailedCommentReport
+	@OneToMany(mappedBy="report")
+	private List<DetailedCommentReport> detailedCommentReports;
 
 	public Report() {
 	}
@@ -97,25 +101,47 @@ public class Report implements Serializable {
 	}
 
 	public List<BmpReport> getBmpReports() {
-		return this.bmpReports;
+		return this.bmpreports;
 	}
 
-	public void setBmpReports(List<BmpReport> bmpReports) {
-		this.bmpReports = bmpReports;
+	public void setBmpreports(List<BmpReport> bmpreports) {
+		this.bmpreports = bmpreports;
 	}
 
-	public BmpReport addBmpReport(BmpReport bmpReport) {
-		getBmpReports().add(bmpReport);
-		bmpReport.setReport(this);
+	public BmpReport addBmpreport(BmpReport bmpreport) {
+		getBmpReports().add(bmpreport);
+		bmpreport.setReport(this);
 
-		return bmpReport;
+		return bmpreport;
 	}
 
-	public BmpReport removeBmpReport(BmpReport bmpReport) {
-		getBmpReports().remove(bmpReport);
-		bmpReport.setReport(null);
+	public BmpReport removeBmpreport(BmpReport bmpreport) {
+		getBmpReports().remove(bmpreport);
+		bmpreport.setReport(null);
 
-		return bmpReport;
+		return bmpreport;
+	}
+
+	public List<DetailedCommentReport> getDetailedCommentReports() {
+		return this.detailedCommentReports;
+	}
+
+	public void setDetailedCommentReports(List<DetailedCommentReport> detailedCommentReports) {
+		this.detailedCommentReports = detailedCommentReports;
+	}
+
+	public DetailedCommentReport addDetailedCommentReport(DetailedCommentReport detailedCommentReport) {
+		getDetailedCommentReports().add(detailedCommentReport);
+		detailedCommentReport.setReport(this);
+
+		return detailedCommentReport;
+	}
+
+	public DetailedCommentReport removeDetailedCommentReport(DetailedCommentReport detailedCommentReport) {
+		getDetailedCommentReports().remove(detailedCommentReport);
+		detailedCommentReport.setReport(null);
+
+		return detailedCommentReport;
 	}
 
 }

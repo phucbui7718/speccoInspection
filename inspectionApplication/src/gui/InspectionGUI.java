@@ -4,7 +4,6 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
 
-import java.awt.Button;
 import java.awt.Color;
 import java.awt.Font;
 
@@ -14,20 +13,27 @@ import javax.swing.JTextField;
 import java.util.Enumeration;
 
 import javax.swing.AbstractButton;
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JRadioButton;
 
 import database.Database;
 import model.BmpReport;
+import model.DetailedCommentReport;
 import model.Inspector;
 import model.Report;
 import model.Swpppreport;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
+import javax.swing.border.Border;
+
+import java.awt.GridLayout;
 
 public class InspectionGUI {
 
@@ -81,8 +87,9 @@ public class InspectionGUI {
 			bmpLine5Text, bmpLine6Text, bmpLine7Text, bmpLine8Text,
 			bmpLine9Text, bmpLine10Text;
 	
+	// Comment panel
 	
-
+	private JTextArea comment1Text, comment2Text, comment3Text, comment4Text, comment5Text;
 	/**
 	 * Create the frame.
 	 */
@@ -117,7 +124,7 @@ public class InspectionGUI {
 		bmpLine8BtnGroup = new ButtonGroup();
 
 		bmpLine9BtnGroup = new ButtonGroup();
-		bmpLine9BtnGroup.add(bmpLine9yes);
+		
 
 		
 
@@ -743,6 +750,7 @@ public class InspectionGUI {
 		bmpLine9na = new JRadioButton("N/A");
 		bmpLine9na.setBounds(438, 354, 50, 23);
 		bmpPanel.add(bmpLine9na);
+		bmpLine9BtnGroup.add(bmpLine9yes);
 		bmpLine9BtnGroup.add(bmpLine9no);
 		bmpLine9BtnGroup.add(bmpLine9na);
 
@@ -785,10 +793,76 @@ public class InspectionGUI {
 		bmpLine10Comment.setBounds(494, 397, 174, 44);
 		bmpPanel.add(bmpLine10Comment);
 		
+		//COMMENT PANEL
+		
+		
+		Border border = BorderFactory.createLineBorder(Color.BLACK);
 		JPanel commentPanel = new JPanel();
 		tabbedPane.addTab("Comments", null, commentPanel, null);
-		commentPanel.setLayout(null);
-
+				commentPanel.setLayout(new GridLayout(0,1, 0, 0));
+				
+				JLabel commentLabel = new JLabel("<html>   Identify the problem and its location. If appropriate (in general terms) what needs to be done. <br> However, only if qualified (e.g., you are a designer) should you be mandating specific BMPs to install. </html>");
+				commentLabel.setBorder(BorderFactory.createTitledBorder("Detail Report"));
+				commentPanel.add(commentLabel);
+				comment1Text = new JTextArea();
+				comment1Text.setText("1.    ");
+				comment1Text.setLineWrap(true);
+				comment1Text.setWrapStyleWord(true);
+				comment1Text.setBorder(BorderFactory.createCompoundBorder(border, 
+	    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		
+		comment2Text = new JTextArea();
+		comment2Text.setText("2.   ");
+		comment2Text.setWrapStyleWord(true);
+		comment2Text.setLineWrap(true);
+		comment2Text.setBorder(BorderFactory.createCompoundBorder(border, 
+			    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+	
+		
+		comment3Text = new JTextArea();
+		comment3Text.setText("3.   ");
+		comment3Text.setWrapStyleWord(true);
+		comment3Text.setLineWrap(true);
+		
+		comment3Text.setBorder(BorderFactory.createCompoundBorder(border, 
+			    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		
+		comment4Text = new JTextArea();
+		comment4Text.setText("4.   ");
+		comment4Text.setWrapStyleWord(true);
+		comment4Text.setLineWrap(true);
+		
+		comment4Text.setBorder(BorderFactory.createCompoundBorder(border, 
+			    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		
+		comment5Text = new JTextArea();
+		comment5Text.setText("OTHER COMMENTS:   ");
+		comment5Text.setWrapStyleWord(true);
+		comment5Text.setLineWrap(true);
+		
+		comment5Text.setBorder(BorderFactory.createCompoundBorder(border, 
+			    BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+		
+		JScrollPane comment1Scroll = new JScrollPane();
+		comment1Scroll.setViewportView(comment1Text);
+		commentPanel.add(comment1Scroll);
+		
+		JScrollPane comment2Scroll = new JScrollPane();
+		comment2Scroll.setViewportView(comment2Text);
+		commentPanel.add(comment2Scroll);
+		
+		JScrollPane comment3Scroll = new JScrollPane();
+		comment3Scroll.setViewportView(comment3Text);
+		commentPanel.add(comment3Scroll);
+		
+		JScrollPane comment4Scroll = new JScrollPane();
+		comment4Scroll.setViewportView(comment4Text);
+		commentPanel.add(comment4Scroll);
+		
+		JScrollPane comment5Scroll = new JScrollPane();
+		comment5Scroll.setViewportView(comment5Text);
+		commentPanel.add(comment5Scroll);
+		
 		JPanel imagePanel = new JPanel();
 		tabbedPane.addTab("Location Images", null, imagePanel, null);
 		imagePanel.setLayout(null);
@@ -835,8 +909,20 @@ public class InspectionGUI {
 				bmpReport.setBmpLine10(getSelectedButtonText(bmpLine10BtnGroup));
 				bmpReport.setReport(report);
 				
+				
 				Database.submitBmpReport(bmpReport);
 				
+				//Detailed Comment
+				DetailedCommentReport dcReport = new DetailedCommentReport();
+				dcReport.setComment1(comment1Text.getText());
+				dcReport.setComment2(comment2Text.getText());
+				dcReport.setComment3(comment3Text.getText());
+				dcReport.setComment4(comment4Text.getText());
+				dcReport.setOthercomment(comment5Text.getText());
+				dcReport.setReport(report);
+				
+				Database.submitDetailedComment(dcReport);
+			
 				JOptionPane.showConfirmDialog(null, "Your inspection report has been submitted!");
 				submitBtn.setEnabled(false);
 			}

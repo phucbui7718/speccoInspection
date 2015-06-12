@@ -23,7 +23,7 @@ public class LoginGUI {
 	private JFrame frame;
 	private JPasswordField passwordField;
 	private JTextField usernameText;
-
+	private JButton loginBtn;
 	/**
 	 * Launch the application.
 	 */
@@ -57,6 +57,7 @@ public class LoginGUI {
 		frame.getContentPane().setLayout(null);
 		frame.setTitle("Login");
 		frame.setResizable(false);
+		frame.getRootPane().setDefaultButton(loginBtn);
 		JLabel empLoginLabel = new JLabel("Specco Employee Login");
 		empLoginLabel.setFont(new Font("Tahoma", Font.PLAIN, 17));
 		empLoginLabel.setBounds(33, 31, 191, 25);
@@ -84,8 +85,8 @@ public class LoginGUI {
 		lblForgotYourPassword.setBounds(56, 175, 134, 25);
 		frame.getContentPane().add(lblForgotYourPassword);
 		
-		JButton btnNewButton = new JButton("Login");
-		btnNewButton.addActionListener(new ActionListener() {
+	    loginBtn = new JButton("Login");
+		loginBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				char[] passChar = passwordField.getPassword();
 				String passStr = new String(passChar);
@@ -108,7 +109,10 @@ public class LoginGUI {
 			
 			}
 		});
-		btnNewButton.setBounds(70, 144, 89, 23);
-		frame.getContentPane().add(btnNewButton);
+		loginBtn.setBounds(70, 144, 89, 23);
+		frame.getContentPane().add(loginBtn);
+		
+		//this will allows user to login without clicking login (by pressing Enter key)
+		frame.getRootPane().setDefaultButton(loginBtn);
 	}
 }
