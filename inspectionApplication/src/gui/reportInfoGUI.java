@@ -4,6 +4,7 @@ package gui;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 import java.awt.Font;
 
@@ -27,6 +28,14 @@ public class reportInfoGUI{
 	 * Create the frame.
 	 */
 	public reportInfoGUI(Inspector inspector) {
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		
+		catch(Exception e){
+			e.printStackTrace();
+		}
 		reportFrame = new JFrame();
 		reportFrame.setTitle("Report Information");
 		reportFrame.setResizable(false);

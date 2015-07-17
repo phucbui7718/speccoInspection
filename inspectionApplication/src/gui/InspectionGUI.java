@@ -1,5 +1,6 @@
 package gui;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.JPanel;
@@ -10,16 +11,21 @@ import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JRadioButton;
+import javax.swing.UIManager;
 
 import database.Database;
 import model.BmpReport;
@@ -33,12 +39,46 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.border.Border;
 
+
+
+
+
+
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamPanel;
+import com.github.sarxos.webcam.WebcamPicker;
+import com.github.sarxos.webcam.WebcamResolution;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.*;
+import com.sun.corba.se.spi.orb.ParserDataFactory;
+
 import java.awt.GridLayout;
+import java.awt.FlowLayout;
+import java.awt.BorderLayout;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class InspectionGUI {
 
 	JFrame inspectionJFrame;
-
+	private boolean notEmpty = false;
+	public static String tempImageURL;
+	public static Integer photoNumCount = 0;
+	//Images panel
+	private Webcam webcam = null;
+	private WebcamPanel wPanel= null;
+	private WebcamPicker wPicker= null;
+	
 	// SWPPP variables
 	private JRadioButton line1yes, line2yes, line3yes, line4yes, line5yes,
 			line6yes, line7yes, line8yes, line9yes, line10yes, line11yes;
@@ -52,19 +92,19 @@ public class InspectionGUI {
 	private ButtonGroup line10btnGroup, line11btnGroup;
 	private JTextArea line1Text, line2Text, line3Text, line4Text, line5Text,
 			line6Text, line7Text, line8Text, line9Text, line10Text, line11Text;
+	private ArrayList<JTextArea>  swppTextArea;
+	private ArrayList<ButtonGroup> swpppBtnGroup;
+	private ArrayList<JTextArea> swpppCommentList;
+	
 
-	private JTextField line1comment;
-	private JTextField line2comment;
-	private JTextField line3comment;
-	private JTextField line4comment;
-	private JTextField line5comment;
-	private JTextField line6comment;
-	private JTextField line7comment;
-	private JTextField line8comment;
-	private JTextField line9comment;
-	private JTextField line10comment;
-	private JTextField line11comment;
-
+	private JTextArea line1comment, line2comment, line3comment,line4comment,line5comment,
+	 line6comment,
+ line7comment,
+ line8comment,
+	line9comment,
+	 line10comment,
+	 line11comment;
+	
 	// BMP/HouseKeeping Variables
 
 	private JRadioButton bmpLine1yes, bmpLine2yes, bmpLine3yes, bmpLine4yes,
@@ -80,7 +120,7 @@ public class InspectionGUI {
 			bmpLine4BtnGroup, bmpLine5BtnGroup, bmpLine6BtnGroup,
 			bmpLine7BtnGroup;
 	private ButtonGroup bmpLine8BtnGroup, bmpLine9BtnGroup, bmpLine10BtnGroup;
-	private JTextField bmpLine1Comment, bmpLine2Comment, bmpLine3Comment,
+	private JTextArea bmpLine1Comment, bmpLine2Comment, bmpLine3Comment,
 			bmpLine4Comment, bmpLine5Comment, bmpLine6Comment, bmpLine7Comment,
 			bmpLine8Comment, bmpLine9Comment, bmpLine10Comment;
 	private JTextArea bmpLine1Text, bmpLine2Text, bmpLine3Text, bmpLine4Text,
@@ -90,11 +130,23 @@ public class InspectionGUI {
 	// Comment panel
 	
 	private JTextArea comment1Text, comment2Text, comment3Text, comment4Text, comment5Text;
+	private JButton getPDFBtn;
+	private ArrayList<JTextArea> bmpTextList;
+	private ArrayList<JTextArea> bmpCommentList;
+	private ArrayList<ButtonGroup> bmpBtnGroupList;
 	/**
 	 * Create the frame.
 	 */
 	public InspectionGUI(Inspector inspector) {
-
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		
 		inspectionJFrame = new JFrame();
 		inspectionJFrame.setTitle("Inspection Form");
 		inspectionJFrame.setResizable(false);
@@ -142,19 +194,19 @@ public class InspectionGUI {
 
 		tabbedPane.setForeground(Color.BLUE);
 
+		
 		JPanel swpppPanel = new JPanel();
 		tabbedPane.addTab("SWPPP Information", null, swpppPanel, null);
 		swpppPanel.setLayout(null);
 
-		line1Text = new JTextArea();
-		line1Text
-				.setText("1. For a nonlinear project, is a sign or other notice: \n"
-						+ "a) Posted Conspicuously near the main entrance of the \n"
-						+ "construction site or if not feasible, \n"
-						+ "b) Posted in a local public building such as the town hall or \n"
-						+ "public library \n"
-						+ "For linear projects, is a sign or other notice posted at a publicly \n"
-						+ "accessible location near the active construction project?");
+		line1Text = new JTextArea(("1. For a nonlinear project, is a sign or other notice: \n"
+				+ "a) Posted Conspicuously near the main entrance of the \n"
+				+ "construction site or if not feasible, \n"
+				+ "b) Posted in a local public building such as the town hall or \n"
+				+ "public library \n"
+				+ "For linear projects, is a sign or other notice posted at a publicly \n"
+				+ "accessible location near the active construction project?"));
+		
 		line1Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line1Text.setEditable(false);
 		line1Text.setBounds(14, 30, 318, 102);
@@ -177,8 +229,7 @@ public class InspectionGUI {
 		line1btnGroup.add(line1na);
 
 		// line 2
-		line2Text = new JTextArea();
-		line2Text.setText("Is a copy of the permit attached?");
+		line2Text = new JTextArea("Is a copy of the permit attached?");
 		line2Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line2Text.setEditable(false);
 		line2Text.setBounds(14, 138, 318, 18);
@@ -200,10 +251,8 @@ public class InspectionGUI {
 		line2btnGroup.add(line2na);
 
 		// line 3
-		line3Text = new JTextArea();
-		line3Text
-				.setText("Is the current location of the SWPPP and names and telephone\n"
-						+ " numbers of a contact person for scheduling viewing times shown?");
+		line3Text = new JTextArea("Is the current location of the SWPPP and names and telephone\n"
+				+ " numbers of a contact person for scheduling viewing times shown?");
 		line3Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line3Text.setEditable(false);
 		line3Text.setBounds(14, 161, 318, 32);
@@ -225,9 +274,7 @@ public class InspectionGUI {
 		line3btnGroup.add(line3na);
 
 		// line 4
-		line4Text = new JTextArea();
-		line4Text
-				.setText("2. Does a copy of the SWPPP and accompanying sediment and \r\nerosion control drawings exist on the construction site?");
+		line4Text = new JTextArea("2. Does a copy of the SWPPP and accompanying sediment and \r\nerosion control drawings exist on the construction site?");
 		line4Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line4Text.setEditable(false);
 		line4Text.setBounds(14, 197, 318, 32);
@@ -249,8 +296,7 @@ public class InspectionGUI {
 		line4btnGroup.add(line4na);
 
 		// line 5
-		line5Text = new JTextArea();
-		line5Text.setText("Is the discharge permit on the construction site?");
+		line5Text = new JTextArea("Is the discharge permit on the construction site?");
 		line5Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line5Text.setEditable(false);
 		line5Text.setBounds(14, 233, 318, 23);
@@ -272,10 +318,8 @@ public class InspectionGUI {
 		line5btnGroup.add(line5na);
 
 		// line6
-		line6Text = new JTextArea();
-		line6Text
-				.setText("Is the discharge permit acknowledgement letter on the \n"
-						+ "construction site?");
+		line6Text = new JTextArea("Is the discharge permit acknowledgement letter on the \n"
+				+ "construction site?");
 		line6Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line6Text.setEditable(false);
 		line6Text.setBounds(14, 262, 318, 32);
@@ -298,10 +342,8 @@ public class InspectionGUI {
 
 		// line 7
 
-		line7Text = new JTextArea();
-		line7Text
-				.setText("Are the SWPPP and/or accompanying sediment and erosion \n"
-						+ "control drawings updated and documented?");
+		line7Text = new JTextArea("Are the SWPPP and/or accompanying sediment and erosion \n"
+				+ "control drawings updated and documented?");
 		line7Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line7Text.setEditable(false);
 		line7Text.setBounds(13, 301, 318, 32);
@@ -323,9 +365,7 @@ public class InspectionGUI {
 		line7btnGroup.add(line7na);
 
 		// line 8
-		line8Text = new JTextArea();
-		line8Text
-				.setText("3. Do inspection records exist on the construction sites?");
+		line8Text = new JTextArea("3. Do inspection records exist on the construction sites?");
 		line8Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line8Text.setEditable(false);
 		line8Text.setBounds(12, 339, 318, 18);
@@ -348,10 +388,8 @@ public class InspectionGUI {
 
 		// line 9
 
-		line9Text = new JTextArea();
-		line9Text
-				.setText("Has the frequency of inspections occured as specified in the \n"
-						+ "SWPPP?");
+		line9Text = new JTextArea("Has the frequency of inspections occured as specified in the \n"
+				+ "SWPPP?");
 		line9Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line9Text.setEditable(false);
 		line9Text.setBounds(10, 365, 318, 32);
@@ -373,10 +411,9 @@ public class InspectionGUI {
 		line9btnGroup.add(line9na);
 
 		// line 10
-		line10Text = new JTextArea();
-		line10Text
-				.setText("Have all previous inspection items been addressed and\n"
-						+ " documented within seven (7) calendar days after an inspection?");
+		line10Text = new JTextArea("Have all previous inspection items been addressed and\n"
+				+ " documented within seven (7) calendar days after an inspection?");
+		
 		line10Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line10Text.setEditable(false);
 		line10Text.setBounds(10, 404, 318, 32);
@@ -398,9 +435,7 @@ public class InspectionGUI {
 		line10btnGroup.add(line10na);
 
 		// line 11
-		line11Text = new JTextArea();
-		line11Text
-				.setText("4. Do climatic records exist since the last inspection?");
+		line11Text = new JTextArea("4. Do climatic records exist since the last inspection?");
 		line11Text.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		line11Text.setEditable(false);
 		line11Text.setBounds(11, 442, 318, 18);
@@ -425,65 +460,66 @@ public class InspectionGUI {
 		lblNewLabel.setBounds(548, 11, 68, 14);
 		swpppPanel.add(lblNewLabel);
 
-		line1comment = new JTextField();
+		line1comment = new JTextArea();
 		line1comment.setBounds(494, 29, 174, 97);
 		swpppPanel.add(line1comment);
 		line1comment.setColumns(10);
 
-		line2comment = new JTextField();
+		line2comment = new JTextArea();
 		line2comment.setColumns(10);
 		line2comment.setBounds(494, 137, 174, 19);
 		swpppPanel.add(line2comment);
 
-		line3comment = new JTextField();
+		line3comment = new JTextArea();
 		line3comment.setBounds(494, 161, 174, 30);
 		swpppPanel.add(line3comment);
 		line3comment.setColumns(10);
 
-		line4comment = new JTextField();
+		line4comment =new JTextArea();
 		line4comment.setBounds(494, 196, 174, 33);
 		swpppPanel.add(line4comment);
 		line4comment.setColumns(10);
 
-		line5comment = new JTextField();
+		line5comment = new JTextArea();
 		line5comment.setColumns(10);
 		line5comment.setBounds(494, 232, 174, 23);
 		swpppPanel.add(line5comment);
 
-		line6comment = new JTextField();
+		line6comment = new JTextArea();
 		line6comment.setColumns(10);
 		line6comment.setBounds(494, 261, 174, 30);
 		swpppPanel.add(line6comment);
 
-		line7comment = new JTextField();
+		line7comment = new JTextArea();
 		line7comment.setColumns(10);
 		line7comment.setBounds(494, 300, 174, 30);
 		swpppPanel.add(line7comment);
 
-		line8comment = new JTextField();
+		line8comment = new JTextArea();
 		line8comment.setColumns(10);
 		line8comment.setBounds(493, 338, 174, 19);
 		swpppPanel.add(line8comment);
 
-		line9comment = new JTextField();
+		line9comment = new JTextArea();
 		line9comment.setColumns(10);
 		line9comment.setBounds(494, 365, 174, 30);
 		swpppPanel.add(line9comment);
 
-		line10comment = new JTextField();
+		line10comment = new JTextArea();
 		line10comment.setColumns(10);
 		line10comment.setBounds(493, 404, 174, 32);
 		swpppPanel.add(line10comment);
 
-		line11comment = new JTextField();
+		line11comment = new JTextArea();
 		line11comment.setColumns(10);
 		line11comment.setBounds(494, 441, 174, 19);
 		swpppPanel.add(line11comment);
-
+		
+		
+		// BMP line 1
 		JPanel bmpPanel = new JPanel();
 		tabbedPane.addTab("BMP/Housekeeping Information", null, bmpPanel, null);
 		bmpPanel.setLayout(null);
-		// BMP line 1
 
 		bmpLine1Text = new JTextArea();
 		bmpLine1Text
@@ -508,11 +544,11 @@ public class InspectionGUI {
 		bmpLine1BtnGroup.add(bmpLine1no);
 		bmpLine1BtnGroup.add(bmpLine1na);
 
-		bmpLine1Comment = new JTextField();
+		bmpLine1Comment = new JTextArea();
 		bmpLine1Comment.setColumns(10);
 		bmpLine1Comment.setBounds(494, 30, 174, 19);
 		bmpPanel.add(bmpLine1Comment);
-
+		
 		// BMP line 2
 		bmpLine2Text = new JTextArea();
 		bmpLine2Text
@@ -540,7 +576,7 @@ public class InspectionGUI {
 		bmpLine2BtnGroup.add(bmpLine2no);
 		bmpLine2BtnGroup.add(bmpLine2na);
 
-		bmpLine2Comment = new JTextField();
+		bmpLine2Comment = new JTextArea();
 		bmpLine2Comment.setColumns(10);
 		bmpLine2Comment.setBounds(494, 54, 174, 61);
 		bmpPanel.add(bmpLine2Comment);
@@ -574,7 +610,7 @@ public class InspectionGUI {
 		bmpLine3BtnGroup.add(bmpLine3no);
 		bmpLine3BtnGroup.add(bmpLine3na);
 
-		bmpLine3Comment = new JTextField();
+		bmpLine3Comment = new JTextArea();
 		bmpLine3Comment.setColumns(10);
 		bmpLine3Comment.setBounds(494, 123, 174, 33);
 		bmpPanel.add(bmpLine3Comment);
@@ -603,7 +639,7 @@ public class InspectionGUI {
 		bmpLine4BtnGroup.add(bmpLine4no);
 		bmpLine4BtnGroup.add(bmpLine4na);
 
-		bmpLine4Comment = new JTextField();
+		bmpLine4Comment = new JTextArea();
 		bmpLine4Comment.setColumns(10);
 		bmpLine4Comment.setBounds(494, 163, 174, 33);
 		bmpPanel.add(bmpLine4Comment);
@@ -634,7 +670,7 @@ public class InspectionGUI {
 		bmpLine5BtnGroup.add(bmpLine5no);
 		bmpLine5BtnGroup.add(bmpLine5na);
 
-		bmpLine5Comment = new JTextField();
+		bmpLine5Comment = new JTextArea();
 		bmpLine5Comment.setColumns(10);
 		bmpLine5Comment.setBounds(494, 205, 174, 33);
 		bmpPanel.add(bmpLine5Comment);
@@ -663,7 +699,7 @@ public class InspectionGUI {
 		bmpLine6BtnGroup.add(bmpLine6no);
 		bmpLine6BtnGroup.add(bmpLine6na);
 
-		bmpLine6Comment = new JTextField();
+		bmpLine6Comment = new JTextArea();
 		bmpLine6Comment.setColumns(10);
 		bmpLine6Comment.setBounds(494, 245, 174, 19);
 		bmpPanel.add(bmpLine6Comment);
@@ -693,7 +729,7 @@ public class InspectionGUI {
 		bmpLine7BtnGroup.add(bmpLine7no);
 		bmpLine7BtnGroup.add(bmpLine7na);
 
-		bmpLine7Comment = new JTextField();
+		bmpLine7Comment = new JTextArea();
 		bmpLine7Comment.setColumns(10);
 		bmpLine7Comment.setBounds(494, 272, 174, 33);
 		bmpPanel.add(bmpLine7Comment);
@@ -723,7 +759,7 @@ public class InspectionGUI {
 		bmpLine8BtnGroup.add(bmpLine8no);
 		bmpLine8BtnGroup.add(bmpLine8na);
 
-		bmpLine8Comment = new JTextField();
+		bmpLine8Comment = new JTextArea();
 		bmpLine8Comment.setColumns(10);
 		bmpLine8Comment.setBounds(494, 313, 174, 33);
 		bmpPanel.add(bmpLine8Comment);
@@ -754,7 +790,7 @@ public class InspectionGUI {
 		bmpLine9BtnGroup.add(bmpLine9no);
 		bmpLine9BtnGroup.add(bmpLine9na);
 
-		bmpLine9Comment = new JTextField();
+		bmpLine9Comment = new JTextArea();
 		bmpLine9Comment.setColumns(10);
 		bmpLine9Comment.setBounds(494, 355, 174, 33);
 		bmpPanel.add(bmpLine9Comment);
@@ -788,7 +824,7 @@ public class InspectionGUI {
 		bmpLine10BtnGroup.add(bmpLine10no);
 		bmpLine10BtnGroup.add(bmpLine10na);
 
-		bmpLine10Comment = new JTextField();
+		bmpLine10Comment = new JTextArea();
 		bmpLine10Comment.setColumns(10);
 		bmpLine10Comment.setBounds(494, 397, 174, 44);
 		bmpPanel.add(bmpLine10Comment);
@@ -863,13 +899,57 @@ public class InspectionGUI {
 		comment5Scroll.setViewportView(comment5Text);
 		commentPanel.add(comment5Scroll);
 		
-		JPanel imagePanel = new JPanel();
-		tabbedPane.addTab("Location Images", null, imagePanel, null);
-		imagePanel.setLayout(null);
+		//Webcam Panel
+				JPanel imagePanel = new JPanel();
+				tabbedPane.addTab("Location Images", null, imagePanel, null);
+				imagePanel.setLayout(new BorderLayout());
+				wPicker = new WebcamPicker();
+				imagePanel.add(wPicker, BorderLayout.NORTH);
+				webcam = wPicker.getSelectedWebcam();
+				if (webcam == null) {
+					JOptionPane.showMessageDialog(null, "No webcam found on this device!", "Webcam Error", JOptionPane.ERROR_MESSAGE);
+				}
+				webcam.setViewSize(WebcamResolution.VGA.getSize());
+				wPanel = new WebcamPanel(webcam, false);
+				imagePanel.add(wPanel, BorderLayout.CENTER);
 
 		JButton submitBtn = new JButton("Submit");
 		submitBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				
+				//validate SWPPPxx
+				validateRadioGroup(line1btnGroup);
+				validateRadioGroup(line2btnGroup);
+				validateRadioGroup(line3btnGroup);
+				validateRadioGroup(line4btnGroup);
+				validateRadioGroup(line5btnGroup);
+				validateRadioGroup(line6btnGroup);
+				validateRadioGroup(line7btnGroup);
+				validateRadioGroup(line8btnGroup);
+				validateRadioGroup(line9btnGroup);
+				validateRadioGroup(line10btnGroup);
+				validateRadioGroup(line11btnGroup);
+				
+				//validate BMP
+				
+				validateRadioGroup(bmpLine1BtnGroup);
+				validateRadioGroup(bmpLine2BtnGroup);
+				validateRadioGroup(bmpLine3BtnGroup);
+				validateRadioGroup(bmpLine4BtnGroup);
+				validateRadioGroup(bmpLine5BtnGroup);
+				validateRadioGroup(bmpLine6BtnGroup);
+				validateRadioGroup(bmpLine7BtnGroup);
+				validateRadioGroup(bmpLine8BtnGroup);
+				validateRadioGroup(bmpLine9BtnGroup);
+				validateRadioGroup(bmpLine10BtnGroup);
+				
+				
+				if( notEmpty == true){
+				
+				JDialog.setDefaultLookAndFeelDecorated(true);
+				int	 dialogRes = JOptionPane.showConfirmDialog(null, "Do you want to submit this report?", "Confirm", JOptionPane.YES_NO_OPTION,
+						JOptionPane.QUESTION_MESSAGE);
+				if (dialogRes == JOptionPane.YES_OPTION){
 				Report report = new Report();
 				report.setReportDate(reportInfoGUI.dateText.getText());
 				report.setReportLocation(reportInfoGUI.siteText.getText());
@@ -922,13 +1002,20 @@ public class InspectionGUI {
 				dcReport.setReport(report);
 				
 				Database.submitDetailedComment(dcReport);
-			
-				JOptionPane.showConfirmDialog(null, "Your inspection report has been submitted!");
 				submitBtn.setEnabled(false);
+				}
+				
+				else {
+				}
+				}
+				
+				else {
+					JOptionPane.showMessageDialog(null, "Please make sure all options are selected!", "Input Error", JOptionPane.ERROR_MESSAGE);
+				}
 			}
 			
 		});
-		submitBtn.setBounds(70, 514, 134, 39);
+		submitBtn.setBounds(10, 521, 112, 39);
 		inspectionJFrame.getContentPane().add(submitBtn);
 
 		JButton exitBtn = new JButton("Exit");
@@ -937,8 +1024,197 @@ public class InspectionGUI {
 				System.exit(0);
 			}
 		});
-		exitBtn.setBounds(358, 514, 134, 39);
+		exitBtn.setBounds(498, 521, 112, 39);
 		inspectionJFrame.getContentPane().add(exitBtn);
+		
+		JButton startCamera = new JButton("Start Camera");
+		startCamera.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Thread t = new Thread(){
+					@Override
+					public void run(){
+						wPanel.start();
+					}
+				};
+				t.setDaemon(true);
+				t.start();
+			}
+		});
+		startCamera.setBounds(132, 521, 112, 39);
+		inspectionJFrame.getContentPane().add(startCamera);
+		
+		JButton btnSnap = new JButton("Snap");
+		btnSnap.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				if (!wPanel.isStarted()){
+					JOptionPane.showMessageDialog(null, "Camera is not yet started!", "Camera Error", JOptionPane.ERROR_MESSAGE);
+				}
+				else {
+				String output = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss'.jpg'").format(new Date());
+				String folderOutput = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
+				String path = "C:\\InspectionImages\\"+folderOutput;
+				createFolder(path);
+				try{
+					++photoNumCount;
+					//File file = new File(String.format("C:\\InspectionImages\\capture-%d.jpg", System.currentTimeMillis()));
+					File file = new File("C:\\InspectionImages\\"+folderOutput+"\\Inspection " +output);
+					ImageIO.write(webcam.getImage(),"JPG", file);
+					JOptionPane.showMessageDialog(null, "The picture has been saved at: \n" + file.getAbsolutePath(), "Screen cap", JOptionPane.INFORMATION_MESSAGE);
+					tempImageURL = file.getAbsolutePath();
+					ImageGUI imageFrame = new ImageGUI();
+					imageFrame.imageFrame.setVisible(true);
+					
+					
+				} catch (IOException e){
+					e.printStackTrace();
+				}
+			}
+			}
+		});
+		btnSnap.setBounds(254, 521, 112, 39);
+		inspectionJFrame.getContentPane().add(btnSnap);
+		
+		getPDFBtn = new JButton("Get PDF");
+		getPDFBtn.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				swppTextArea = new ArrayList<JTextArea>();
+				swppTextArea.add(line1Text);
+				swppTextArea.add(line2Text);
+				swppTextArea.add(line3Text);
+				swppTextArea.add(line4Text);
+				swppTextArea.add(line5Text);
+				swppTextArea.add(line6Text);
+				swppTextArea.add(line7Text);
+				swppTextArea.add(line8Text);
+				swppTextArea.add(line9Text);
+				swppTextArea.add(line10Text);
+				swppTextArea.add(line11Text);
+				
+				swpppBtnGroup = new ArrayList<ButtonGroup>();
+				swpppBtnGroup.add(line1btnGroup);
+				swpppBtnGroup.add(line2btnGroup);
+				swpppBtnGroup.add(line3btnGroup);
+				swpppBtnGroup.add(line4btnGroup);
+				swpppBtnGroup.add(line5btnGroup);
+				swpppBtnGroup.add(line6btnGroup);
+				swpppBtnGroup.add(line7btnGroup);
+				swpppBtnGroup.add(line8btnGroup);
+				swpppBtnGroup.add(line9btnGroup);
+				swpppBtnGroup.add(line10btnGroup);
+				swpppBtnGroup.add(line11btnGroup);
+				
+				swpppCommentList = new ArrayList<JTextArea>();
+				swpppCommentList.add(line1comment);
+				swpppCommentList.add(line2comment);
+				swpppCommentList.add(line3comment);
+				swpppCommentList.add(line4comment);
+				swpppCommentList.add(line5comment);
+				swpppCommentList.add(line6comment);
+				swpppCommentList.add(line7comment);
+				swpppCommentList.add(line8comment);
+				swpppCommentList.add(line9comment);
+				swpppCommentList.add(line10comment);
+				swpppCommentList.add(line11comment);
+				
+				//bmp
+				
+				bmpTextList = new ArrayList<JTextArea>();
+				bmpTextList.add(bmpLine1Text);
+				bmpTextList.add(bmpLine2Text);
+				bmpTextList.add(bmpLine3Text);
+				bmpTextList.add(bmpLine4Text);
+				bmpTextList.add(bmpLine5Text);
+				bmpTextList.add(bmpLine6Text);
+				bmpTextList.add(bmpLine7Text);
+				bmpTextList.add(bmpLine8Text);
+				bmpTextList.add(bmpLine9Text);
+				bmpTextList.add(bmpLine10Text);
+				
+				bmpCommentList = new ArrayList<JTextArea>();
+				bmpCommentList.add(bmpLine1Comment);
+				bmpCommentList.add(bmpLine2Comment);
+				bmpCommentList.add(bmpLine3Comment);
+				bmpCommentList.add(bmpLine4Comment);
+				bmpCommentList.add(bmpLine5Comment);
+				bmpCommentList.add(bmpLine6Comment);
+				bmpCommentList.add(bmpLine7Comment);
+				bmpCommentList.add(bmpLine8Comment);
+				bmpCommentList.add(bmpLine9Comment);
+				bmpCommentList.add(bmpLine10Comment);
+				
+				bmpBtnGroupList = new ArrayList<ButtonGroup>();
+				bmpBtnGroupList.add(bmpLine1BtnGroup);
+				bmpBtnGroupList.add(bmpLine2BtnGroup);
+				bmpBtnGroupList.add(bmpLine3BtnGroup);
+				bmpBtnGroupList.add(bmpLine4BtnGroup);
+				bmpBtnGroupList.add(bmpLine5BtnGroup);
+				bmpBtnGroupList.add(bmpLine6BtnGroup);
+				bmpBtnGroupList.add(bmpLine7BtnGroup);
+				bmpBtnGroupList.add(bmpLine8BtnGroup);
+				bmpBtnGroupList.add(bmpLine9BtnGroup);
+				bmpBtnGroupList.add(bmpLine10BtnGroup);
+				
+				
+				
+				
+				// start to create pdf
+				Document document = new Document(PageSize.A4.rotate());
+				try{
+					PdfWriter.getInstance(document, new FileOutputStream("OIAReport.pdf"));
+					com.itextpdf.text.Font font = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 20, Font.BOLD);
+					com.itextpdf.text.Font font1 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
+					com.itextpdf.text.Font font2 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, com.itextpdf.text.Font.UNDERLINE);
+					document.open();
+					Image logo = Image.getInstance("C:\\logo.png");
+					document.add(logo);
+					Paragraph p1 = new Paragraph("OIA South Terminal Expansion", font);
+					p1.setAlignment(Element.ALIGN_CENTER);
+					document.add(p1);
+					Chunk site = new Chunk(reportInfoGUI.siteText.getText() + Chunk.NEWLINE, font2);
+					Chunk date = new Chunk (reportInfoGUI.dateText.getText() + Chunk.NEWLINE, font2);
+					Chunk name = new Chunk (reportInfoGUI.inspectorText.getText() + Chunk.NEWLINE, font2);
+					Chunk weather = new Chunk (reportInfoGUI.weatherText.getText() + Chunk.NEWLINE, font2);
+					
+					Phrase phrase1 = new Phrase(30);
+					phrase1.add(new Chunk("Site Name: ", font1));
+					phrase1.add(site);
+					phrase1.add(new Chunk("Date of Evaluation: ", font1));
+		
+					phrase1.add(date);
+					phrase1.add(new Chunk("Completed by: ", font1));
+					phrase1.add(name);
+					phrase1.add(new Chunk("Existing Weather Conditions: ", font1));
+					phrase1.add(weather);
+					Paragraph p2 = new Paragraph(phrase1);
+					document.add(p2);
+					document.newPage();
+					//new page
+					PdfPTable swppptable = new PdfPTable(new float[] {10,2,5});
+					 createInformationTable("SWPPP Information", swppptable, swpppCommentList, swppTextArea, swpppBtnGroup);
+					 document.add(swppptable);
+					 document.newPage();
+					 PdfPTable bmptable = new PdfPTable(new float[] {10,2,5});
+					 createInformationTable("BMP Information",bmptable, bmpCommentList, bmpTextList, bmpBtnGroupList);
+					 document.add(bmptable);
+					 document.newPage();
+					 
+					 PdfPTable commentTable = new PdfPTable(new float[] {1, 10});
+					 commentTable.addCell("a");
+					 commentTable.addCell("b");
+					 commentTable.addCell("a");
+					 commentTable.addCell("b");
+					 
+					 document.add(commentTable);
+					document.close();
+				}catch (Exception e){
+					e.printStackTrace();
+				}
+			}
+		});
+		getPDFBtn.setBounds(376, 521, 112, 39);
+		inspectionJFrame.getContentPane().add(getPDFBtn);
 
 	}
 
@@ -957,4 +1233,59 @@ public class InspectionGUI {
 		return null;
 
 	}
+
+	private void validateRadioGroup(ButtonGroup buttonGroup){
+		for (Enumeration<AbstractButton> btns = buttonGroup.getElements(); btns.hasMoreElements();){
+			AbstractButton btn = (JRadioButton) btns.nextElement();
+				if (btn.isSelected()){
+					notEmpty = true;
+					break;
+				}
+				else{
+					notEmpty = false;
+				}
+		}
+	}
+	
+	private static boolean createFolder(String theFilePath)
+	{
+	    boolean result = false;
+
+	    File directory = new File(theFilePath);
+
+	    if (directory.exists()) {
+	        System.out.println("Folder already exists");
+	    } else {
+	        result = directory.mkdirs();
+	    }
+
+	    return result;
+	}
+	
+	private void createInformationTable(String tableTitle, PdfPTable table, ArrayList<JTextArea> comment, ArrayList<JTextArea> detail, ArrayList<ButtonGroup> radioGroup){
+		
+		Phrase phrase = new Phrase(tableTitle, new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD));
+		table.getDefaultCell().setPadding(3);
+		 table.getDefaultCell().setUseAscender(true);
+		 table.getDefaultCell().setUseDescender(true);
+		 table.getDefaultCell().setColspan(3);
+		 table.getDefaultCell().setBackgroundColor(BaseColor.LIGHT_GRAY);
+		 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+		 table.addCell(phrase);
+		 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
+		 table.getDefaultCell().setColspan(1);
+		 table.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
+		 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+		 table.getDefaultCell().setPadding(5);
+		 table.addCell("Details");
+		 table.addCell("Status");
+		 table.addCell("Comments");
+		 table.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
+		 for(int i = 0 ; i < detail.size(); i++){
+			 table.addCell(detail.get(i).getText());
+			 table.addCell(getSelectedButtonText(radioGroup.get(i)));
+			 table.addCell(comment.get(i).getText());
+		 }
+	}
 }
+

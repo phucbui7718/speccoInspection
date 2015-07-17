@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import java.awt.Font;
 
@@ -51,6 +52,13 @@ public class LoginGUI {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+		
+		catch(Exception e){
+			e.printStackTrace();
+		}
 		frame = new JFrame();
 		frame.setBounds(100, 100, 250, 250);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
