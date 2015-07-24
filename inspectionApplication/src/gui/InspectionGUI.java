@@ -33,11 +33,13 @@ import model.DetailedCommentReport;
 import model.Inspector;
 import model.Report;
 import model.Swpppreport;
+import model.inspImages;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 import javax.swing.border.Border;
+
 
 
 
@@ -95,7 +97,7 @@ public class InspectionGUI {
 	private ArrayList<JTextArea>  swppTextArea;
 	private ArrayList<ButtonGroup> swpppBtnGroup;
 	private ArrayList<JTextArea> swpppCommentList;
-	
+	public static ArrayList<inspImages> imageList;
 
 	private JTextArea line1comment, line2comment, line3comment,line4comment,line5comment,
 	 line6comment,
@@ -134,6 +136,7 @@ public class InspectionGUI {
 	private ArrayList<JTextArea> bmpTextList;
 	private ArrayList<JTextArea> bmpCommentList;
 	private ArrayList<ButtonGroup> bmpBtnGroupList;
+	private ArrayList<JTextArea> detailCommentList;
 	/**
 	 * Create the frame.
 	 */
@@ -1034,6 +1037,7 @@ public class InspectionGUI {
 					@Override
 					public void run(){
 						wPanel.start();
+						tabbedPane.setSelectedIndex(3);
 					}
 				};
 				t.setDaemon(true);
@@ -1043,6 +1047,7 @@ public class InspectionGUI {
 		startCamera.setBounds(132, 521, 112, 39);
 		inspectionJFrame.getContentPane().add(startCamera);
 		
+		imageList = new ArrayList<inspImages>();
 		JButton btnSnap = new JButton("Snap");
 		btnSnap.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -1056,6 +1061,7 @@ public class InspectionGUI {
 				String path = "C:\\InspectionImages\\"+folderOutput;
 				createFolder(path);
 				try{
+					
 					++photoNumCount;
 					//File file = new File(String.format("C:\\InspectionImages\\capture-%d.jpg", System.currentTimeMillis()));
 					File file = new File("C:\\InspectionImages\\"+folderOutput+"\\Inspection " +output);
@@ -1156,7 +1162,13 @@ public class InspectionGUI {
 				bmpBtnGroupList.add(bmpLine9BtnGroup);
 				bmpBtnGroupList.add(bmpLine10BtnGroup);
 				
-				
+				//Detailed Comment Panel
+				detailCommentList = new ArrayList<JTextArea>();
+				detailCommentList.add(comment1Text);
+				detailCommentList.add(comment2Text);
+				detailCommentList.add(comment3Text);
+				detailCommentList.add(comment4Text);
+				detailCommentList.add(comment5Text);
 				
 				
 				// start to create pdf
@@ -1167,6 +1179,7 @@ public class InspectionGUI {
 					com.itextpdf.text.Font font1 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
 					com.itextpdf.text.Font font2 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, com.itextpdf.text.Font.UNDERLINE);
 					document.open();
+					Image img = null;
 					Image logo = Image.getInstance("C:\\logo.png");
 					document.add(logo);
 					Paragraph p1 = new Paragraph("OIA South Terminal Expansion", font);
@@ -1200,14 +1213,42 @@ public class InspectionGUI {
 					 document.add(bmptable);
 					 document.newPage();
 					 
-					 PdfPTable commentTable = new PdfPTable(new float[] {1, 10});
-					 commentTable.addCell("a");
-					 commentTable.addCell("b");
-					 commentTable.addCell("a");
-					 commentTable.addCell("b");
+					 //Comment Table
+					 PdfPTable commentTable = new PdfPTable(new float[] {10});
+					 Phrase commentTitle = new Phrase("Detail Comment", font1);
+					 commentTable.getDefaultCell().setPadding(5);
+					 commentTable.getDefaultCell().setUseAscender(true);
+					 commentTable.getDefaultCell().setUseDescender(false);
+					 commentTable.getDefaultCell().setBackgroundColor(BaseColor.LIGHT_GRAY);
+					 commentTable.getDefaultCell().setHorizontalAlignment(Element.ALIGN_CENTER);
+					 commentTable.addCell(commentTitle);
+					 commentTable.getDefaultCell().setHorizontalAlignment(Element.ALIGN_LEFT);
+					 commentTable.getDefaultCell().setBackgroundColor(BaseColor.WHITE);
+					 commentTable.getDefaultCell().setPadding(5);
+					 for (int i = 0; i < detailCommentList.size(); i++){
+		
+						 commentTable.addCell(detailCommentList.get(i).getText());
+						
+					 }
 					 
 					 document.add(commentTable);
-					document.close();
+					 
+					 document.newPage();
+					 for (int i = 0; i < InspectionGUI.imageList.size(); i++){
+						 PdfPTable imgTbl = new PdfPTable(2);
+						 imgTbl.setWidthPercentage(100);
+						 imgTbl.setWidths(new int[] {1,2});
+					 img = Image.getInstance(InspectionGUI.imageList.get(i).getImgpath());
+					 img.scaleToFit(300f, 300f);
+					 imgTbl.addCell(img);
+					 imgTbl.addCell(InspectionGUI.imageList.get(i).getPhotoid() + "\n" + InspectionGUI.imageList.get(i). getDate() + "\n" +
+					 InspectionGUI.imageList.get(i).getDirection() + "\n" + InspectionGUI.imageList.get(i).getDescription());
+					 	
+					 document.add(imgTbl);
+					 }
+
+					 
+					 document.close();
 				}catch (Exception e){
 					e.printStackTrace();
 				}
