@@ -37,7 +37,7 @@ public class ImageGUI{
 	private final JLabel dateTaken;
 	private JTextArea directionTaken;
 	private JTextArea description;
-	private JButton btnNewButton;
+	private JButton savePhotoBtn;
 	/**
 	 * Create the frame.
 	 */
@@ -90,8 +90,8 @@ public class ImageGUI{
 		description.setBounds(10, 181, 132, 170);
 		contentPane.add(description);
 		
-		btnNewButton = new JButton("Take another");
-		btnNewButton.addActionListener(new ActionListener() {
+		savePhotoBtn = new JButton("Save Photo");
+		savePhotoBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				inspImages inspPhoto = new inspImages();
 				inspPhoto.setPhotoid(InspectionGUI.photoNumCount);
@@ -105,7 +105,17 @@ public class ImageGUI{
 				
 			}
 		});
-		btnNewButton.setBounds(10, 358, 132, 50);
-		contentPane.add(btnNewButton);
+		savePhotoBtn.setBounds(10, 368, 132, 50);
+		contentPane.add(savePhotoBtn);
+		
+		JButton button = new JButton("Delete");
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				InspectionGUI.photoNumCount--;
+				imageFrame.setVisible(false);
+			}
+		});
+		button.setBounds(10, 429, 132, 50);
+		contentPane.add(button);
 	}
 }

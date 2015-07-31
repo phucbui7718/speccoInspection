@@ -61,7 +61,6 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.*;
-import com.sun.corba.se.spi.orb.ParserDataFactory;
 
 import java.awt.GridLayout;
 import java.awt.FlowLayout;
@@ -1018,7 +1017,7 @@ public class InspectionGUI {
 			}
 			
 		});
-		submitBtn.setBounds(10, 521, 112, 39);
+		submitBtn.setBounds(44, 522, 112, 39);
 		inspectionJFrame.getContentPane().add(submitBtn);
 
 		JButton exitBtn = new JButton("Exit");
@@ -1027,7 +1026,7 @@ public class InspectionGUI {
 				System.exit(0);
 			}
 		});
-		exitBtn.setBounds(498, 521, 112, 39);
+		exitBtn.setBounds(532, 522, 112, 39);
 		inspectionJFrame.getContentPane().add(exitBtn);
 		
 		JButton startCamera = new JButton("Start Camera");
@@ -1044,7 +1043,7 @@ public class InspectionGUI {
 				t.start();
 			}
 		});
-		startCamera.setBounds(132, 521, 112, 39);
+		startCamera.setBounds(166, 522, 112, 39);
 		inspectionJFrame.getContentPane().add(startCamera);
 		
 		imageList = new ArrayList<inspImages>();
@@ -1064,9 +1063,9 @@ public class InspectionGUI {
 					
 					++photoNumCount;
 					//File file = new File(String.format("C:\\InspectionImages\\capture-%d.jpg", System.currentTimeMillis()));
-					File file = new File("C:\\InspectionImages\\"+folderOutput+"\\Inspection " +output);
+					File file = new File("C:\\InspectionImages\\"+folderOutput+"\\Inspection" +output);
 					ImageIO.write(webcam.getImage(),"JPG", file);
-					JOptionPane.showMessageDialog(null, "The picture has been saved at: \n" + file.getAbsolutePath(), "Screen cap", JOptionPane.INFORMATION_MESSAGE);
+					//JOptionPane.showMessageDialog(null, "The picture has been saved at: \n" + file.getAbsolutePath(), "Screen cap", JOptionPane.INFORMATION_MESSAGE);
 					tempImageURL = file.getAbsolutePath();
 					ImageGUI imageFrame = new ImageGUI();
 					imageFrame.imageFrame.setVisible(true);
@@ -1078,13 +1077,42 @@ public class InspectionGUI {
 			}
 			}
 		});
-		btnSnap.setBounds(254, 521, 112, 39);
+		btnSnap.setBounds(288, 522, 112, 39);
 		inspectionJFrame.getContentPane().add(btnSnap);
 		
 		getPDFBtn = new JButton("Get PDF");
 		getPDFBtn.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
+				//validate SWPPPxx
+				validateRadioGroup(line1btnGroup);
+				validateRadioGroup(line2btnGroup);
+				validateRadioGroup(line3btnGroup);
+				validateRadioGroup(line4btnGroup);
+				validateRadioGroup(line5btnGroup);
+				validateRadioGroup(line6btnGroup);
+				validateRadioGroup(line7btnGroup);
+				validateRadioGroup(line8btnGroup);
+				validateRadioGroup(line9btnGroup);
+				validateRadioGroup(line10btnGroup);
+				validateRadioGroup(line11btnGroup);
+				
+				//validate BMP
+				
+				validateRadioGroup(bmpLine1BtnGroup);
+				validateRadioGroup(bmpLine2BtnGroup);
+				validateRadioGroup(bmpLine3BtnGroup);
+				validateRadioGroup(bmpLine4BtnGroup);
+				validateRadioGroup(bmpLine5BtnGroup);
+				validateRadioGroup(bmpLine6BtnGroup);
+				validateRadioGroup(bmpLine7BtnGroup);
+				validateRadioGroup(bmpLine8BtnGroup);
+				validateRadioGroup(bmpLine9BtnGroup);
+				validateRadioGroup(bmpLine10BtnGroup);
+				
+				
+				if (notEmpty == true){
+					JOptionPane.showMessageDialog(null, "Successfully generated! Get reports at C:\\SpeccoInspectionPDFs\\");
 				swppTextArea = new ArrayList<JTextArea>();
 				swppTextArea.add(line1Text);
 				swppTextArea.add(line2Text);
@@ -1174,13 +1202,19 @@ public class InspectionGUI {
 				// start to create pdf
 				Document document = new Document(PageSize.A4.rotate());
 				try{
+					String output1 = new SimpleDateFormat("yyyy-MM-dd hh-mm-ss'.pdf'").format(new Date());
+					String folderOutput1 = new SimpleDateFormat("MM-dd-yyyy").format(new Date());
+					String path1 = "C:\\SpeccoInspectionPDFs\\"+folderOutput1;
+					createFolder(path1);
+					
 					PdfWriter.getInstance(document, new FileOutputStream("OIAReport.pdf"));
+					PdfWriter.getInstance(document, new FileOutputStream(path1+"\\Report"+output1 ));
 					com.itextpdf.text.Font font = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 20, Font.BOLD);
 					com.itextpdf.text.Font font1 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, Font.BOLD);
 					com.itextpdf.text.Font font2 = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.TIMES_ROMAN, 14, com.itextpdf.text.Font.UNDERLINE);
 					document.open();
 					Image img = null;
-					Image logo = Image.getInstance("C:\\logo.png");
+					Image logo = Image.getInstance("pictures\\logo.png");
 					document.add(logo);
 					Paragraph p1 = new Paragraph("OIA South Terminal Expansion", font);
 					p1.setAlignment(Element.ALIGN_CENTER);
@@ -1234,15 +1268,20 @@ public class InspectionGUI {
 					 document.add(commentTable);
 					 
 					 document.newPage();
+					 int newpagecount = 1;
 					 for (int i = 0; i < InspectionGUI.imageList.size(); i++){
+						 newpagecount++;
+						 if (newpagecount % 3 == 0){
+						 		document.newPage();
+						 	}
 						 PdfPTable imgTbl = new PdfPTable(2);
-						 imgTbl.setWidthPercentage(100);
+						 //imgTbl.setWidthPercentage(100);
 						 imgTbl.setWidths(new int[] {1,2});
 					 img = Image.getInstance(InspectionGUI.imageList.get(i).getImgpath());
-					 img.scaleToFit(300f, 300f);
+					 img.scaleToFit(350f, 350f);
 					 imgTbl.addCell(img);
-					 imgTbl.addCell(InspectionGUI.imageList.get(i).getPhotoid() + "\n" + InspectionGUI.imageList.get(i). getDate() + "\n" +
-					 InspectionGUI.imageList.get(i).getDirection() + "\n" + InspectionGUI.imageList.get(i).getDescription());
+					 imgTbl.addCell("*Photo No.: " + InspectionGUI.imageList.get(i).getPhotoid() + Chunk.NEWLINE + "*Date Taken: "+ InspectionGUI.imageList.get(i). getDate() + Chunk.NEWLINE +
+					 "*Direction: " + InspectionGUI.imageList.get(i).getDirection() + Chunk.NEWLINE + "*Description : " + InspectionGUI.imageList.get(i).getDescription());
 					 	
 					 document.add(imgTbl);
 					 }
@@ -1252,9 +1291,13 @@ public class InspectionGUI {
 				}catch (Exception e){
 					e.printStackTrace();
 				}
+			} else {
+				JOptionPane.showMessageDialog(null, "Please make sure all options are selected!", "Input Error", JOptionPane.ERROR_MESSAGE);
+			}
+				
 			}
 		});
-		getPDFBtn.setBounds(376, 521, 112, 39);
+		getPDFBtn.setBounds(410, 522, 112, 39);
 		inspectionJFrame.getContentPane().add(getPDFBtn);
 
 	}
